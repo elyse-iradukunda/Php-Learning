@@ -10,7 +10,6 @@
     <h1>Current Server Time</h1>
     <p>
         <?php
-            date_default_timezone_set('Africa/Kigali'); // Set timezone
             echo "The current server time is: " . date("Y-m-d H:i:s");
         ?>
     </p>
@@ -172,7 +171,7 @@ echo "<br>";
 // Increment / Decrement
 $a++; // $a = 11
 $b--; // $b = 2
-echo $a . " " . $b . "<br>";
+echo $a . " " . $b . "<br>"; 
 
 // Logical Operators
 var_dump($a > 5 && $b < 5); // true → AND
