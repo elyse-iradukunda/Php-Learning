@@ -17,3 +17,19 @@ $
  }
 
 ?>
+
+<?php
+
+// quick notes about array in php
+
+
+$cars = ["toyota" => "90","benze" => "59","BMW"=>"60"];
+
+foreach($cars as $i => $v){
+  
+ echo $i.":". $v; 
+ echo "\n";
+}
+
+
+?>
