@@ -38,7 +38,7 @@
 <body>
   <div class="form-container">
     <h3>Class A Information</h3>
-    <form action="classwork.php" method="post">
+    <form action="insert.php" method="post">
       <label for="phonenumber">Phone Number</label>
       <input type="tel" id="phonenumber" name="phonenumber">
 
@@ -47,39 +47,16 @@
 
       <label for="lastname">Last Name</label>
       <input type="text" id="lastname" name="lastname">
+            <label for="lastname">Provence</label>
+      <input type="text" id="" name="province">
 
       <label for="gender">Gender</label>
       <div style="display: flex; gap:10px;">
-        Male: <input type="radio" name="Gendar" id=""> 
-        Female: <input type="radio" name="Gendar"> 
+        Male: <input type="radio" name="Gendar" value="Male"> 
+        Female: <input type="radio" name="Gendar" value="Female"> 
       </div>
-      <button type="submit">Submit</button>
+      <button type="submit" name="send">Submit</button>
     </form>
   </div>
 </body>
-   
-<?php
-if($_SERVER["REQUEST_METHOD"]=="POST"){
-   
-  $phoneNumber = $_POST["phonenumber"];
-  $firstname = $_POST["firstname"];
-  $lastname = $_POST["lastname"];
-  $gender = $_POST["gender"];
-
-  echo $phoneNumber;
-    
-  $conn = mysqli("localhost","root","","classA")
-   
-  class mysqli{
-    $server;
-    $user;
-    $password;
-    $db;
-  }
-$con = new mysqli("localhost","root","password","classA");
-    
-}
-
-
-?>
 </html>
