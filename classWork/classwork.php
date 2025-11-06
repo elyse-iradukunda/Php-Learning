@@ -40,7 +40,7 @@
     <h3>Class A Information</h3>
     <form action="classwork.php" method="post">
       <label for="phonenumber">Phone Number</label>
-      <input type="text" id="phonenumber" name="phonenumber">
+      <input type="tel" id="phonenumber" name="phonenumber">
 
       <label for="firstname">First Name</label>
       <input type="text" id="firstname" name="firstname">
@@ -49,12 +49,10 @@
       <input type="text" id="lastname" name="lastname">
 
       <label for="gender">Gender</label>
-      <select id="gender" name="gender">
-        <option value="">Select</option>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-      </select>
-
+      <div style="display: flex; gap:10px;">
+        Male: <input type="radio" name="Gendar" id=""> 
+        Female: <input type="radio" name="Gendar"> 
+      </div>
       <button type="submit">Submit</button>
     </form>
   </div>
@@ -67,11 +65,21 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
   $firstname = $_POST["firstname"];
   $lastname = $_POST["lastname"];
   $gender = $_POST["gender"];
- 
 
-  if(isset())
-  $conn = mysqli_connect("localhost","root","");
- 
+  echo $phoneNumber;
+    
+  $conn = mysqli("localhost","root","","classA")
+   
+  class mysqli{
+    $server;
+    $user;
+    $password;
+    $db;
+  }
+$con = new mysqli("localhost","root","password","classA");
+    
 }
+
+
 ?>
 </html>
