@@ -10,44 +10,84 @@
             font-family: Arial, sans-serif;
         }
         form, table {
-            background-color: #4a90e2;
-            padding: 20px;
-            border-radius: 15px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
             margin: 20px auto;
             width: 350px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+        label {
+            color: #555;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
         }
         input, select {
-            width: 90%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 9px;
-            border: 1px solid #2c5aa0;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
         }
         button {
-            padding: 8px 17px;
+            padding: 12px 25px;
             margin: 10px 5px 0 0;
             border: none;
-            border-radius: 8px;
-            background-color: #2c5aa0;
+            border-radius: 5px;
+            background-color: #4a90e2;
             color: white;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #1a3a6b;
+            background-color: #357abd;
+        }
+        button[name="delete"] {
+            background-color: #e74c3c;
+        }
+        button[name="delete"]:hover {
+            background-color: #c0392b;
         }
         table {
             width: 90%;
             border-collapse: collapse;
+            background-color: white;
         }
-        th, td {
-            border: 1px solid #2c5aa0;
-            padding: 8px;
-            text-align: center;
+        th {
+            background-color: #1e88e5;
+            color: white;
+            border: 1px solid #1e88e5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            background-color: white;
+            color: #424242;
+        }
+        tr:hover td {
+            background-color: #f0f7ff;
         }
         h1 {
             text-align: center;
-            color: #2c5aa0;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 30px;
         }
     </style>
 </head>
@@ -59,11 +99,13 @@ if (!$connect) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-
+// Initialize variables
 $cname = $email = $phone = $membership = $join_date = "";
-$edit_id = null;
+$edit_name = null;
 
+// -------- POST Handlers (Add, Update, Delete) --------
 
+// Add Customer
 if (isset($_POST['add'])) {
     $cname = $_POST['cname'];
     $email = $_POST['email'];
@@ -75,14 +117,14 @@ if (isset($_POST['add'])) {
               VALUES ('$cname', '$email', '$phone', '$membership', '$join_date')";
     mysqli_query($connect, $query);
 
- 
+    // Redirect to prevent resubmission
     header("Location: ".$_SERVER['PHP_SELF']);
     exit();
 }
 
-
+// Update Customer
 if (isset($_POST['update'])) {
-    $edit_id = $_POST['edit_id'];
+    $edit_name = $_POST['edit_name'];
     $cname = $_POST['cname'];
     $email = $_POST['email'];
     $phone = $_POST['phone'];
@@ -95,28 +137,29 @@ if (isset($_POST['update'])) {
                 phone='$phone', 
                 membership='$membership', 
                 join_date='$join_date' 
-              WHERE cid=$edit_id";
+              WHERE cname='$edit_name'";
     mysqli_query($connect, $query);
 
-   
+    // Redirect to prevent resubmission
     header("Location: ".$_SERVER['PHP_SELF']);
     exit();
 }
 
-
+// Delete Customer
 if (isset($_POST['delete'])) {
-    $id = $_POST['cid'];
-    $query = "DELETE FROM customers WHERE cid=$id";
+    $name = $_POST['cname'];
+    $query = "DELETE FROM customers WHERE cname='$name'";
     mysqli_query($connect, $query);
 
- 
+    // Redirect to prevent resubmission
     header("Location: ".$_SERVER['PHP_SELF']);
     exit();
 }
 
+// -------- Load data for editing --------
 if (isset($_GET['edit'])) {
-    $edit_id = $_GET['edit'];
-    $result = mysqli_query($connect, "SELECT * FROM customers WHERE cid=$edit_id");
+    $edit_name = $_GET['edit'];
+    $result = mysqli_query($connect, "SELECT * FROM customers WHERE cname='$edit_name'");
     if ($row = mysqli_fetch_assoc($result)) {
         $cname = $row['cname'];
         $email = $row['email'];
@@ -126,24 +169,24 @@ if (isset($_GET['edit'])) {
     }
 }
 
-
+// Fetch all customers for display
 $result = mysqli_query($connect, "SELECT * FROM customers");
 ?>
 
 <h1>Studio Customers Management</h1>
 
-
+<!-- Customer Form -->
 <form action="#" method="POST">
-    <input type="hidden" name="edit_id" value="<?php echo $edit_id; ?>">
+    <input type="hidden" name="edit_name" value="<?php echo $edit_name; ?>">
 
     <label for="customer_name">Customer Name:</label>
-    <input type="text" id="customer_name" name="cname" required value="<?php echo $cname; ?>"><br><br>
+    <input type="text" id="customer_name" name="cname" required value="<?php echo $cname; ?>">
 
     <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required value="<?php echo $email; ?>"><br><br>
+    <input type="email" id="email" name="email" required value="<?php echo $email; ?>">
 
     <label for="phone">Phone:</label>
-    <input type="text" id="phone" name="phone" required value="<?php echo $phone; ?>"><br><br>
+    <input type="text" id="phone" name="phone" required value="<?php echo $phone; ?>">
 
     <label for="membership">Membership:</label>
     <select id="membership" name="membership">
@@ -151,23 +194,22 @@ $result = mysqli_query($connect, "SELECT * FROM customers");
         <option value="Standard" <?php if($membership=="Standard") echo "selected";?>>Standard</option>
         <option value="Premium" <?php if($membership=="Premium") echo "selected";?>>Premium</option>
         <option value="VIP" <?php if($membership=="VIP") echo "selected";?>>VIP</option>
-    </select><br><br>
+    </select>
 
     <label for="join_date">Join Date:</label>
-    <input type="date" id="join_date" name="join_date" required value="<?php echo $join_date; ?>"><br><br>
+    <input type="date" id="join_date" name="join_date" required value="<?php echo $join_date; ?>">
 
-    <?php if($edit_id): ?>
+    <?php if($edit_name): ?>
         <button type="submit" name="update">Update Customer</button>
     <?php else: ?>
         <button type="submit" name="add">Add Customer</button>
     <?php endif; ?>
 </form>
 
-
+<!-- Customer Table -->
 <?php if(mysqli_num_rows($result) > 0): ?>
     <table>
         <tr>
-            <th>ID</th>
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
@@ -177,16 +219,15 @@ $result = mysqli_query($connect, "SELECT * FROM customers");
         </tr>
         <?php while($row = mysqli_fetch_assoc($result)): ?>
             <tr>
-                <td><?php echo $row['cid']; ?></td>
                 <td><?php echo $row['cname']; ?></td>
                 <td><?php echo $row['email']; ?></td>
                 <td><?php echo $row['phone']; ?></td>
                 <td><?php echo $row['membership']; ?></td>
                 <td><?php echo $row['join_date']; ?></td>
                 <td>
-                    <a href="?edit=<?php echo $row['cid'];?>"><button type="button">Update</button></a>
+                    <a href="?edit=<?php echo $row['cname'];?>"><button type="button">Update</button></a>
                     <form method="POST" style="display:inline;">
-                        <input type="hidden" name="cid" value="<?php echo $row['cid']; ?>">
+                        <input type="hidden" name="cname" value="<?php echo $row['cname']; ?>">
                         <button type="submit" name="delete" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
                 </td>
