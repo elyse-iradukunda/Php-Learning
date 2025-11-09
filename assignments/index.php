@@ -99,13 +99,10 @@ if (!$connect) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-// Initialize variables
 $cname = $email = $phone = $membership = $join_date = "";
 $edit_name = null;
 
-// -------- POST Handlers (Add, Update, Delete) --------
 
-// Add Customer
 if (isset($_POST['add'])) {
     $cname = $_POST['cname'];
     $email = $_POST['email'];
@@ -117,12 +114,10 @@ if (isset($_POST['add'])) {
               VALUES ('$cname', '$email', '$phone', '$membership', '$join_date')";
     mysqli_query($connect, $query);
 
-    // Redirect to prevent resubmission
     header("Location: ".$_SERVER['PHP_SELF']);
     exit();
 }
 
-// Update Customer
 if (isset($_POST['update'])) {
     $edit_name = $_POST['edit_name'];
     $cname = $_POST['cname'];
@@ -140,23 +135,19 @@ if (isset($_POST['update'])) {
               WHERE cname='$edit_name'";
     mysqli_query($connect, $query);
 
-    // Redirect to prevent resubmission
     header("Location: ".$_SERVER['PHP_SELF']);
     exit();
 }
 
-// Delete Customer
 if (isset($_POST['delete'])) {
     $name = $_POST['cname'];
     $query = "DELETE FROM customers WHERE cname='$name'";
     mysqli_query($connect, $query);
 
-    // Redirect to prevent resubmission
     header("Location: ".$_SERVER['PHP_SELF']);
     exit();
 }
 
-// -------- Load data for editing --------
 if (isset($_GET['edit'])) {
     $edit_name = $_GET['edit'];
     $result = mysqli_query($connect, "SELECT * FROM customers WHERE cname='$edit_name'");
@@ -169,13 +160,11 @@ if (isset($_GET['edit'])) {
     }
 }
 
-// Fetch all customers for display
 $result = mysqli_query($connect, "SELECT * FROM customers");
 ?>
 
 <h1>Studio Customers Management</h1>
 
-<!-- Customer Form -->
 <form action="#" method="POST">
     <input type="hidden" name="edit_name" value="<?php echo $edit_name; ?>">
 
@@ -206,7 +195,6 @@ $result = mysqli_query($connect, "SELECT * FROM customers");
     <?php endif; ?>
 </form>
 
-<!-- Customer Table -->
 <?php if(mysqli_num_rows($result) > 0): ?>
     <table>
         <tr>
