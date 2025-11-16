@@ -1,3 +1,86 @@
+<?php
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// Logout functionality
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
+
+$connect = mysqli_connect('localhost', 'root', '', 'studio_db');
+if (!$connect) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+$cname = $email = $phone = $membership = $join_date = "";
+$edit_name = null;
+
+if (isset($_POST['add'])) {
+    $cname = mysqli_real_escape_string($connect, $_POST['cname']);
+    $email = mysqli_real_escape_string($connect, $_POST['email']);
+    $phone = mysqli_real_escape_string($connect, $_POST['phone']);
+    $membership = mysqli_real_escape_string($connect, $_POST['membership']);
+    $join_date = mysqli_real_escape_string($connect, $_POST['join_date']);
+
+    $query = "INSERT INTO customers (cname, email, phone, membership, join_date)
+              VALUES ('$cname', '$email', '$phone', '$membership', '$join_date')";
+    mysqli_query($connect, $query);
+
+    header("Location: ".$_SERVER['PHP_SELF']);
+    exit();
+}
+
+if (isset($_POST['update'])) {
+    $edit_name = mysqli_real_escape_string($connect, $_POST['edit_name']);
+    $cname = mysqli_real_escape_string($connect, $_POST['cname']);
+    $email = mysqli_real_escape_string($connect, $_POST['email']);
+    $phone = mysqli_real_escape_string($connect, $_POST['phone']);
+    $membership = mysqli_real_escape_string($connect, $_POST['membership']);
+    $join_date = mysqli_real_escape_string($connect, $_POST['join_date']);
+
+    $query = "UPDATE customers SET 
+                cname='$cname', 
+                email='$email', 
+                phone='$phone', 
+                membership='$membership', 
+                join_date='$join_date' 
+              WHERE cname='$edit_name'";
+    mysqli_query($connect, $query);
+
+    header("Location: ".$_SERVER['PHP_SELF']);
+    exit();
+}
+
+if (isset($_POST['delete'])) {
+    $name = mysqli_real_escape_string($connect, $_POST['cname']);
+    $query = "DELETE FROM customers WHERE cname='$name'";
+    mysqli_query($connect, $query);
+
+    header("Location: ".$_SERVER['PHP_SELF']);
+    exit();
+}
+
+if (isset($_GET['edit'])) {
+    $edit_name = mysqli_real_escape_string($connect, $_GET['edit']);
+    $result = mysqli_query($connect, "SELECT * FROM customers WHERE cname='$edit_name'");
+    if ($row = mysqli_fetch_assoc($result)) {
+        $cname = $row['cname'];
+        $email = $row['email'];
+        $phone = $row['phone'];
+        $membership = $row['membership'];
+        $join_date = $row['join_date'];
+    }
+}
+
+$result = mysqli_query($connect, "SELECT * FROM customers");
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,6 +91,43 @@
         body {
             background-color: white;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-name {
+            font-weight: 500;
+        }
+        .logout-btn {
+            padding: 8px 20px;
+            background-color: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.3);
         }
         form, table {
             background-color: white;
@@ -36,15 +156,15 @@
         }
         input:focus, select:focus {
             outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
         }
         button {
             padding: 12px 25px;
             margin: 10px 5px 0 0;
             border: none;
             border-radius: 5px;
-            background-color: #4a90e2;
+            background-color: #667eea;
             color: white;
             cursor: pointer;
             font-size: 14px;
@@ -52,7 +172,7 @@
             transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #357abd;
+            background-color: #5568d3;
         }
         button[name="delete"] {
             background-color: #e74c3c;
@@ -66,9 +186,9 @@
             background-color: white;
         }
         th {
-            background-color: #1e88e5;
+            background-color: #667eea;
             color: white;
-            border: 1px solid #1e88e5;
+            border: 1px solid #667eea;
             padding: 12px;
             text-align: left;
             font-weight: 500;
@@ -83,99 +203,37 @@
         tr:hover td {
             background-color: #f0f7ff;
         }
-        h1 {
+        h2 {
             text-align: center;
             color: #333;
             font-weight: 600;
-            margin-bottom: 30px;
+            margin: 30px 0 10px 0;
         }
     </style>
 </head>
 <body>
 
-<?php
-$connect = mysqli_connect('localhost', 'root', '', 'studio_db');
-if (!$connect) {
-    die("Connection failed: " . mysqli_connect_error());
-}
+<div class="header">
+    <h1>🎬 Studio Customers Management</h1>
+    <div class="user-info">
+        <span class="user-name">👤 <?php echo htmlspecialchars($_SESSION['full_name']); ?></span>
+        <a href="?logout=true" class="logout-btn">Logout</a>
+    </div>
+</div>
 
-$cname = $email = $phone = $membership = $join_date = "";
-$edit_name = null;
-
-
-if (isset($_POST['add'])) {
-    $cname = $_POST['cname'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $membership = $_POST['membership'];
-    $join_date = $_POST['join_date'];
-
-    $query = "INSERT INTO customers (cname, email, phone, membership, join_date)
-              VALUES ('$cname', '$email', '$phone', '$membership', '$join_date')";
-    mysqli_query($connect, $query);
-
-    header("Location: ".$_SERVER['PHP_SELF']);
-    exit();
-}
-
-if (isset($_POST['update'])) {
-    $edit_name = $_POST['edit_name'];
-    $cname = $_POST['cname'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $membership = $_POST['membership'];
-    $join_date = $_POST['join_date'];
-
-    $query = "UPDATE customers SET 
-                cname='$cname', 
-                email='$email', 
-                phone='$phone', 
-                membership='$membership', 
-                join_date='$join_date' 
-              WHERE cname='$edit_name'";
-    mysqli_query($connect, $query);
-
-    header("Location: ".$_SERVER['PHP_SELF']);
-    exit();
-}
-
-if (isset($_POST['delete'])) {
-    $name = $_POST['cname'];
-    $query = "DELETE FROM customers WHERE cname='$name'";
-    mysqli_query($connect, $query);
-
-    header("Location: ".$_SERVER['PHP_SELF']);
-    exit();
-}
-
-if (isset($_GET['edit'])) {
-    $edit_name = $_GET['edit'];
-    $result = mysqli_query($connect, "SELECT * FROM customers WHERE cname='$edit_name'");
-    if ($row = mysqli_fetch_assoc($result)) {
-        $cname = $row['cname'];
-        $email = $row['email'];
-        $phone = $row['phone'];
-        $membership = $row['membership'];
-        $join_date = $row['join_date'];
-    }
-}
-
-$result = mysqli_query($connect, "SELECT * FROM customers");
-?>
-
-<h1>Studio Customers Management</h1>
+<h2>Customer Form</h2>
 
 <form action="#" method="POST">
-    <input type="hidden" name="edit_name" value="<?php echo $edit_name; ?>">
+    <input type="hidden" name="edit_name" value="<?php echo htmlspecialchars($edit_name); ?>">
 
     <label for="customer_name">Customer Name:</label>
-    <input type="text" id="customer_name" name="cname" required value="<?php echo $cname; ?>">
+    <input type="text" id="customer_name" name="cname" required value="<?php echo htmlspecialchars($cname); ?>">
 
     <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required value="<?php echo $email; ?>">
+    <input type="email" id="email" name="email" required value="<?php echo htmlspecialchars($email); ?>">
 
     <label for="phone">Phone:</label>
-    <input type="text" id="phone" name="phone" required value="<?php echo $phone; ?>">
+    <input type="text" id="phone" name="phone" required value="<?php echo htmlspecialchars($phone); ?>">
 
     <label for="membership">Membership:</label>
     <select id="membership" name="membership">
@@ -186,7 +244,7 @@ $result = mysqli_query($connect, "SELECT * FROM customers");
     </select>
 
     <label for="join_date">Join Date:</label>
-    <input type="date" id="join_date" name="join_date" required value="<?php echo $join_date; ?>">
+    <input type="date" id="join_date" name="join_date" required value="<?php echo htmlspecialchars($join_date); ?>">
 
     <?php if($edit_name): ?>
         <button type="submit" name="update">Update Customer</button>
@@ -194,6 +252,8 @@ $result = mysqli_query($connect, "SELECT * FROM customers");
         <button type="submit" name="add">Add Customer</button>
     <?php endif; ?>
 </form>
+
+<h2>Customer List</h2>
 
 <?php if(mysqli_num_rows($result) > 0): ?>
     <table>
@@ -207,15 +267,15 @@ $result = mysqli_query($connect, "SELECT * FROM customers");
         </tr>
         <?php while($row = mysqli_fetch_assoc($result)): ?>
             <tr>
-                <td><?php echo $row['cname']; ?></td>
-                <td><?php echo $row['email']; ?></td>
-                <td><?php echo $row['phone']; ?></td>
-                <td><?php echo $row['membership']; ?></td>
-                <td><?php echo $row['join_date']; ?></td>
+                <td><?php echo htmlspecialchars($row['cname']); ?></td>
+                <td><?php echo htmlspecialchars($row['email']); ?></td>
+                <td><?php echo htmlspecialchars($row['phone']); ?></td>
+                <td><?php echo htmlspecialchars($row['membership']); ?></td>
+                <td><?php echo htmlspecialchars($row['join_date']); ?></td>
                 <td>
-                    <a href="?edit=<?php echo $row['cname'];?>"><button type="button">Update</button></a>
+                    <a href="?edit=<?php echo urlencode($row['cname']);?>"><button type="button">Update</button></a>
                     <form method="POST" style="display:inline;">
-                        <input type="hidden" name="cname" value="<?php echo $row['cname']; ?>">
+                        <input type="hidden" name="cname" value="<?php echo htmlspecialchars($row['cname']); ?>">
                         <button type="submit" name="delete" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
                 </td>
