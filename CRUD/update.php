@@ -8,9 +8,15 @@
 <body>
     
 
+
+ <a href="index.php?delete=<?php echo $row["c_id"]?>">delete</a>
+
  <?php 
+  
+
+    $i=$_GET["update"];
    $conn= mysqli_connect("localhost","root","","prep_crud");
-    $sel = mysqli_query($conn,"SELECT * FROM customer");
+    $sel = mysqli_query($conn,"SELECT * FROM customer where C_ID='$i'");
 
     if($sel){
         echo "selection is done ";
@@ -34,9 +40,9 @@
          <input type="submit" value="submit" name="update">
 
      </pre>
-    <?php } ?>  
- </form>
 
+ </form>
+    <?php } ?>  
  
  <?php
 
@@ -49,6 +55,8 @@
    $update = mysqli_query($conn,"UPDATE customer  SET  Name ='$name',Phone ='$phone' WHERE  C_ID ='$id'");
   if($update){
     echo "data was updated";
+
+    header("location:index.php");
   }
   else{
     echo "failed to update";
@@ -56,10 +64,6 @@
 
    }
  ?>
-  
-
-
-
 
 </body>
 </html>

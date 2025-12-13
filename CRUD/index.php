@@ -1,3 +1,13 @@
+<?php
+
+session_start();
+
+if(!isset($_SESSION["user"])){
+   header("location:login.php");
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +17,9 @@
 </head>
 <body>
    
-
+  <h1>Hello <?php echo $_SESSION["user"]; ?></h1>  
+   
+ <a href="logout.php">click here to logout</a>  
 
 <form action="index.php" method="POST">
       
@@ -54,10 +66,6 @@
 </table>
 
 
-
-
-
-
 <?php
 if(isset($_POST["submit"])){
 
@@ -67,7 +75,7 @@ if(isset($_POST["submit"])){
     $ins = mysqli_query($conn,"INSERT INTO customer (Name,Phone) VALUES ('$name','$phone')");
 
     if($ins){
-  echo "recorded";
+    header("location:index.php");
     }
     else{
         echo "data is not inserted";
