@@ -26,15 +26,7 @@ echo "<br>";
 
 
 <?php
-function Charcode(){
-    $code = '';
-    for( $i = 0; $i<8; $i++){
-       
-        $code .=chr(rand(65,90));
-    }
-
- return $code;
-}
+c
 
 echo(Charcode());
 
@@ -56,16 +48,16 @@ echo(Convert(13,50));
 
 <?php 
  
- function length($str){
-    if(strlen(($str)==5)&& (ctype_alnum($str)==true)){
+//  function length($str){
+//     if(strlen($str)==5) && (ctype_alnum($str)==true){
         
-        return "this is valid format";
-    }
-    else{
-        return "watokombey";
-    }
- }
-echo (length("fb355"));
+//         return "this is valid format";
+//     }
+//     else{
+//         return "watokombey";
+//     }
+//  }
+// echo (length("fb355"));
 ?>
 
 
